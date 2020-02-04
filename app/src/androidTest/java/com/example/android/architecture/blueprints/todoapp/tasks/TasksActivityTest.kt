@@ -38,34 +38,45 @@ import com.example.android.architecture.blueprints.todoapp.R.string
 import com.example.android.architecture.blueprints.todoapp.TodoApplication
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
-import com.example.android.architecture.blueprints.todoapp.util.DataBindingIdlingResource
+import com.example.android.architecture.blueprints.todoapp.di.AppModuleBinds
 import com.example.android.architecture.blueprints.todoapp.util.EspressoIdlingResource
 import com.example.android.architecture.blueprints.todoapp.util.deleteAllTasksBlocking
-import com.example.android.architecture.blueprints.todoapp.util.monitorActivity
 import com.example.android.architecture.blueprints.todoapp.util.saveTaskBlocking
+import dagger.hilt.GenerateComponents
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import org.hamcrest.Matchers.allOf
 import org.hamcrest.core.IsNot.not
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import javax.inject.Inject
 
 /**
  * Large End-to-End test for the tasks module.
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@UninstallModules(AppModuleBinds::class)
+@GenerateComponents
+@HiltAndroidTest
 class TasksActivityTest {
 
-    private lateinit var repository: TasksRepository
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    lateinit var repository: TasksRepository
 
     // An Idling Resource that waits for Data Binding to have no pending bindings
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     @Before
     fun init() {
-        repository = ApplicationProvider.getApplicationContext<TodoApplication>().appComponent.tasksRepository
-        repository.deleteAllTasksBlocking()
+        hiltRule.inject()
     }
 
     /**

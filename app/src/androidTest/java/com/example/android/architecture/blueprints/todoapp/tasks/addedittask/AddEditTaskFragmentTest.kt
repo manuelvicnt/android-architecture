@@ -13,10 +13,9 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.architecture.blueprints.todoapp.addedittask
+package com.example.android.architecture.blueprints.todoapp.tasks.addedittask
 
 import android.content.Context
-import androidx.fragment.app.testing.launchFragmentInContainer
 import androidx.navigation.NavController
 import androidx.navigation.Navigation
 import androidx.test.core.app.ApplicationProvider.getApplicationContext
@@ -30,48 +29,59 @@ import androidx.test.espresso.matcher.ViewMatchers.withId
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.TodoApplication
+import com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskFragment
+import com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskFragmentArgs
+import com.example.android.architecture.blueprints.todoapp.addedittask.AddEditTaskFragmentDirections
 import com.example.android.architecture.blueprints.todoapp.data.Result
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
+import com.example.android.architecture.blueprints.todoapp.di.AppModuleBinds
 import com.example.android.architecture.blueprints.todoapp.tasks.ADD_EDIT_RESULT_OK
-import com.example.android.architecture.blueprints.todoapp.util.deleteAllTasksBlocking
+import com.example.android.architecture.blueprints.todoapp.tasks.launchFragmentInHiltContainer
 import com.example.android.architecture.blueprints.todoapp.util.getTasksBlocking
+import dagger.hilt.GenerateComponents
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.junit.Assert.assertEquals
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
 import org.mockito.Mockito.mock
 import org.mockito.Mockito.verify
-import org.robolectric.annotation.LooperMode
-import org.robolectric.annotation.TextLayoutMode
+import javax.inject.Inject
 
 /**
  * Integration test for the Add Task screen.
  */
 @RunWith(AndroidJUnit4::class)
 @MediumTest
-@LooperMode(LooperMode.Mode.PAUSED)
-@TextLayoutMode(TextLayoutMode.Mode.REALISTIC)
 @ExperimentalCoroutinesApi
+@UninstallModules(AppModuleBinds::class)
+@GenerateComponents
+@HiltAndroidTest
 class AddEditTaskFragmentTest {
 
-    private lateinit var repository: TasksRepository
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    lateinit var repository: TasksRepository
 
     @Before
     fun init() {
-        repository = getApplicationContext<TodoApplication>().appComponent.tasksRepository
-        repository.deleteAllTasksBlocking()
+        hiltRule.inject()
     }
 
     @Test
     fun emptyTask_isNotSaved() {
         // GIVEN - On the "Add Task" screen.
         val bundle = AddEditTaskFragmentArgs(
-            null,
-            getApplicationContext<Context>().getString(R.string.add_task)
+                null,
+                getApplicationContext<Context>().getString(R.string.add_task)
         ).toBundle()
-        launchFragmentInContainer<AddEditTaskFragment>(bundle, R.style.AppTheme)
+        launchFragmentInHiltContainer<AddEditTaskFragment>(bundle, R.style.AppTheme)
 
         // WHEN - Enter invalid title and description combination and click save
         onView(withId(R.id.add_task_title_edit_text)).perform(clearText())
@@ -95,19 +105,17 @@ class AddEditTaskFragmentTest {
 
         // THEN - Verify that we navigated back to the tasks screen.
         verify(navController).navigate(
-            AddEditTaskFragmentDirections
-                .actionAddEditTaskFragmentToTasksFragment(ADD_EDIT_RESULT_OK)
+                AddEditTaskFragmentDirections.actionAddEditTaskFragmentToTasksFragment(ADD_EDIT_RESULT_OK)
         )
     }
 
     private fun launchFragment(navController: NavController?) {
         val bundle = AddEditTaskFragmentArgs(
-            null,
-            getApplicationContext<Context>().getString(R.string.add_task)
+                null,
+                getApplicationContext<Context>().getString(R.string.add_task)
         ).toBundle()
-        val scenario = launchFragmentInContainer<AddEditTaskFragment>(bundle, R.style.AppTheme)
-        scenario.onFragment {
-            Navigation.setViewNavController(it.view!!, navController)
+        launchFragmentInHiltContainer<AddEditTaskFragment>(bundle, R.style.AppTheme) {
+            Navigation.setViewNavController(view!!, navController)
         }
     }
 

@@ -17,8 +17,8 @@
 package com.example.android.architecture.blueprints.todoapp
 
 import android.app.Application
-import com.example.android.architecture.blueprints.todoapp.di.AppComponent
-import com.example.android.architecture.blueprints.todoapp.di.DaggerAppComponent
+import dagger.hilt.GenerateComponents
+import dagger.hilt.android.AndroidEntryPoint
 import timber.log.Timber
 import timber.log.Timber.DebugTree
 
@@ -28,19 +28,9 @@ import timber.log.Timber.DebugTree
  *
  * Also, sets up Timber in the DEBUG BuildConfig. Read Timber's documentation for production setups.
  */
+@GenerateComponents
+@AndroidEntryPoint
 open class TodoApplication : Application() {
-
-    // Instance of the AppComponent that will be used by all the Activities in the project
-    val appComponent: AppComponent by lazy {
-        initializeComponent()
-    }
-
-    open fun initializeComponent(): AppComponent {
-        // Creates an instance of AppComponent using its Factory constructor
-        // We pass the applicationContext that will be used as Context in the graph
-        return DaggerAppComponent.factory().create(applicationContext)
-    }
-
     override fun onCreate() {
         super.onCreate()
         if (BuildConfig.DEBUG) Timber.plant(DebugTree())

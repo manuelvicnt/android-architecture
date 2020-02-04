@@ -13,10 +13,8 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.example.android.architecture.blueprints.todoapp.taskdetail
+package com.example.android.architecture.blueprints.todoapp.tasks.taskdetail
 
-import androidx.fragment.app.testing.launchFragmentInContainer
-import androidx.test.core.app.ApplicationProvider
 import androidx.test.espresso.Espresso.onView
 import androidx.test.espresso.assertion.ViewAssertions.matches
 import androidx.test.espresso.matcher.ViewMatchers.isChecked
@@ -26,17 +24,26 @@ import androidx.test.espresso.matcher.ViewMatchers.withText
 import androidx.test.ext.junit.runners.AndroidJUnit4
 import androidx.test.filters.MediumTest
 import com.example.android.architecture.blueprints.todoapp.R
-import com.example.android.architecture.blueprints.todoapp.TodoApplication
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
+import com.example.android.architecture.blueprints.todoapp.di.AppModuleBinds
+import com.example.android.architecture.blueprints.todoapp.taskdetail.TaskDetailFragment
+import com.example.android.architecture.blueprints.todoapp.taskdetail.TaskDetailFragmentArgs
+import com.example.android.architecture.blueprints.todoapp.tasks.launchFragmentInHiltContainer
 import com.example.android.architecture.blueprints.todoapp.util.deleteAllTasksBlocking
 import com.example.android.architecture.blueprints.todoapp.util.saveTaskBlocking
+import dagger.hilt.GenerateComponents
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import kotlinx.coroutines.ExperimentalCoroutinesApi
 import org.hamcrest.core.IsNot.not
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import javax.inject.Inject
 
 /**
  * Integration test for the Task Details screen.
@@ -44,14 +51,20 @@ import org.junit.runner.RunWith
 @MediumTest
 @RunWith(AndroidJUnit4::class)
 @ExperimentalCoroutinesApi
+@UninstallModules(AppModuleBinds::class)
+@GenerateComponents
+@HiltAndroidTest
 class TaskDetailFragmentTest {
 
-    private lateinit var repository: TasksRepository
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    lateinit var repository: TasksRepository
 
     @Before
     fun init() {
-        repository = ApplicationProvider.getApplicationContext<TodoApplication>().appComponent.tasksRepository
-        repository.deleteAllTasksBlocking()
+        hiltRule.inject()
     }
 
     @After
@@ -67,7 +80,7 @@ class TaskDetailFragmentTest {
 
         // WHEN - Details fragment launched to display task
         val bundle = TaskDetailFragmentArgs(activeTask.id).toBundle()
-        launchFragmentInContainer<TaskDetailFragment>(bundle, R.style.AppTheme)
+        launchFragmentInHiltContainer<TaskDetailFragment>(bundle, R.style.AppTheme)
 
         // THEN - Task details are displayed on the screen
         // make sure that the title/description are both shown and correct
@@ -88,7 +101,7 @@ class TaskDetailFragmentTest {
 
         // WHEN - Details fragment launched to display task
         val bundle = TaskDetailFragmentArgs(completedTask.id).toBundle()
-        launchFragmentInContainer<TaskDetailFragment>(bundle, R.style.AppTheme)
+        launchFragmentInHiltContainer<TaskDetailFragment>(bundle, R.style.AppTheme)
 
         // THEN - Task details are displayed on the screen
         // make sure that the title/description are both shown and correct

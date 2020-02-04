@@ -39,15 +39,20 @@ import com.example.android.architecture.blueprints.todoapp.R
 import com.example.android.architecture.blueprints.todoapp.TodoApplication
 import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
-import com.example.android.architecture.blueprints.todoapp.util.DataBindingIdlingResource
+import com.example.android.architecture.blueprints.todoapp.di.AppModuleBinds
 import com.example.android.architecture.blueprints.todoapp.util.EspressoIdlingResource
 import com.example.android.architecture.blueprints.todoapp.util.deleteAllTasksBlocking
-import com.example.android.architecture.blueprints.todoapp.util.monitorActivity
 import com.example.android.architecture.blueprints.todoapp.util.saveTaskBlocking
+import dagger.hilt.GenerateComponents
+import dagger.hilt.android.testing.HiltAndroidRule
+import dagger.hilt.android.testing.HiltAndroidTest
+import dagger.hilt.android.testing.UninstallModules
 import org.junit.After
 import org.junit.Before
+import org.junit.Rule
 import org.junit.Test
 import org.junit.runner.RunWith
+import javax.inject.Inject
 
 /**
  * Tests for the [DrawerLayout] layout component in [TasksActivity] which manages
@@ -55,17 +60,23 @@ import org.junit.runner.RunWith
  */
 @RunWith(AndroidJUnit4::class)
 @LargeTest
+@UninstallModules(AppModuleBinds::class)
+@GenerateComponents
+@HiltAndroidTest
 class AppNavigationTest {
 
-    private lateinit var tasksRepository: TasksRepository
+    @get:Rule
+    var hiltRule = HiltAndroidRule(this)
+
+    @Inject
+    lateinit var tasksRepository: TasksRepository
 
     // An Idling Resource that waits for Data Binding to have no pending bindings
     private val dataBindingIdlingResource = DataBindingIdlingResource()
 
     @Before
     fun init() {
-        tasksRepository = ApplicationProvider.getApplicationContext<TodoApplication>().appComponent.tasksRepository
-        tasksRepository.deleteAllTasksBlocking()
+        hiltRule.inject()
     }
 
     /**

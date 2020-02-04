@@ -8,12 +8,16 @@ import com.example.android.architecture.blueprints.todoapp.data.source.local.ToD
 import com.example.android.architecture.blueprints.todoapp.data.source.remote.TasksRemoteDataSource
 import dagger.Module
 import dagger.Provides
+import dagger.hilt.InstallIn
+import dagger.hilt.android.components.ApplicationComponent
+import dagger.hilt.android.qualifiers.ApplicationContext
 import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.Dispatchers
 import javax.inject.Qualifier
 import javax.inject.Singleton
 import kotlin.annotation.AnnotationRetention.RUNTIME
 
+@InstallIn(ApplicationComponent::class)
 @Module
 object AppModule {
 
@@ -49,7 +53,7 @@ object AppModule {
     @JvmStatic
     @Singleton
     @Provides
-    fun provideDataBase(context: Context): ToDoDatabase {
+    fun provideDataBase(@ApplicationContext context: Context): ToDoDatabase {
         return Room.databaseBuilder(
             context.applicationContext,
             ToDoDatabase::class.java,

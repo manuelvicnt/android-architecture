@@ -16,6 +16,7 @@
 package com.example.android.architecture.blueprints.todoapp.taskdetail
 
 import androidx.annotation.StringRes
+import androidx.hilt.lifecycle.ViewModelInject
 import androidx.lifecycle.LiveData
 import androidx.lifecycle.MutableLiveData
 import androidx.lifecycle.Transformations
@@ -29,12 +30,11 @@ import com.example.android.architecture.blueprints.todoapp.data.Task
 import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
 import com.example.android.architecture.blueprints.todoapp.util.wrapEspressoIdlingResource
 import kotlinx.coroutines.launch
-import javax.inject.Inject
 
 /**
  * ViewModel for the Details screen.
  */
-class TaskDetailViewModel @Inject constructor(
+class TaskDetailViewModel @ViewModelInject constructor(
     private val tasksRepository: TasksRepository
 ) : ViewModel() {
 
