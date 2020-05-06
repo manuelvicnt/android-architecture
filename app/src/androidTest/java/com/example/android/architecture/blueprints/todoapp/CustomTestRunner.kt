@@ -13,28 +13,17 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 package com.example.android.architecture.blueprints.todoapp
 
 import android.app.Application
-import com.example.android.architecture.blueprints.todoapp.data.source.TasksRepository
-import dagger.hilt.GenerateComponents
-import dagger.hilt.android.AndroidEntryPoint
-import timber.log.Timber
-import timber.log.Timber.DebugTree
+import android.content.Context
+import androidx.test.runner.AndroidJUnitRunner
+import dagger.hilt.android.testing.CustomBaseTestApplication
 
-/**
- * An application that lazily provides a repository. Note that this Service Locator pattern is
- * used to simplify the sample. Consider a Dependency Injection framework.
- *
- * Also, sets up Timber in the DEBUG BuildConfig. Read Timber's documentation for production setups.
- */
-@GenerateComponents
-@AndroidEntryPoint
-class TodoApplication : Application() {
+@CustomBaseTestApplication(Application::class)
+class CustomTestRunner : AndroidJUnitRunner() {
 
-    override fun onCreate() {
-        super.onCreate()
-        if (BuildConfig.DEBUG) Timber.plant(DebugTree())
+    override fun newApplication(cl: ClassLoader?, name: String?, context: Context?): Application {
+        return super.newApplication(cl, CustomTestRunner_Application::class.java.name, context)
     }
 }
