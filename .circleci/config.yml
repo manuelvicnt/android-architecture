@@ -28,7 +28,7 @@ jobs:
       - run:
           name: Build test and lint
           command: |
-            ./gradlew assembleDebug assembleDebugAndroidTest testDebug lintDebug
+            ./gradlew assembleMockDebug assembleProdDebug assembleMockDebugAndroidTest testMockDebug testProdDebug lintMockDebug lintProdDebug
       - run:
           name: Save test results
           command: |

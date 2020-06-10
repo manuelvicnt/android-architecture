@@ -1,8 +1,7 @@
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'kotlin-kapt'
-apply plugin: 'dagger.hilt.android.plugin'
-apply plugin: 'androidx.navigation.safeargs.kotlin'
+apply plugin: "androidx.navigation.safeargs.kotlin"
 
 android {
     compileSdkVersion rootProject.compileSdkVersion
@@ -14,13 +13,7 @@ android {
         versionCode 1
         versionName "1.0"
 
-        testInstrumentationRunner "com.example.android.architecture.blueprints.todoapp.CustomTestRunner"
-
-        javaCompileOptions {
-            annotationProcessorOptions {
-                arguments += ["room.incremental" : "true"]
-            }
-        }
+        testInstrumentationRunner 'androidx.test.runner.AndroidJUnitRunner'
     }
 
     android {
@@ -51,6 +44,27 @@ android {
         }
     }
 
+    flavorDimensions "default"
+
+    // If you need to add more flavors, consider using flavor dimensions.
+    productFlavors {
+        mock {
+            dimension "default"
+            applicationIdSuffix = ".mock"
+        }
+        prod {
+            dimension "default"
+        }
+    }
+
+    // Remove mockRelease as it's not needed.
+    android.variantFilter { variant ->
+        if (variant.buildType.name == 'release'
+                && variant.getFlavors().get(0).name == 'mock') {
+            variant.setIgnore(true)
+        }
+    }
+
     // Always show the result of every unit test, even if it passes.
     testOptions.unitTests {
         includeAndroidResources = true
@@ -62,8 +76,9 @@ android {
         }
     }
 
-    buildFeatures {
-        dataBinding = true
+    dataBinding {
+        enabled = true
+        enabledForTests = true
     }
 
     compileOptions {
@@ -105,18 +120,6 @@ dependencies {
     implementation "androidx.navigation:navigation-fragment-ktx:$navigationVersion"
     implementation "androidx.navigation:navigation-ui-ktx:$navigationVersion"
 
-    // Hilt
-    implementation "com.google.dagger:hilt-android:$hiltVersion"
-    kapt "com.google.dagger:hilt-android-compiler:$hiltVersion"
-    implementation "androidx.hilt:hilt-lifecycle-viewmodel:$hiltAndroidXVersion"
-    kapt "androidx.hilt:hilt-compiler:$hiltAndroidXVersion"
-
-    // Hilt testing
-    androidTestImplementation "com.google.dagger:hilt-android-testing:$hiltVersion"
-    kaptAndroidTest "com.google.dagger:dagger-compiler:$daggerVersion"
-    kaptAndroidTest "com.google.dagger:hilt-android-compiler:$hiltVersion"
-    kaptAndroidTest "androidx.hilt:hilt-compiler:$hiltAndroidXVersion"
-
     // Dependencies for local unit tests
     testImplementation "junit:junit:$junitVersion"
     testImplementation "org.mockito:mockito-core:$mockitoVersion"
@@ -141,7 +144,7 @@ dependencies {
     testImplementation "androidx.test.ext:junit-ktx:$androidXTestExtKotlinRunnerVersion"
     testImplementation "androidx.test:rules:$androidXTestRulesVersion"
     // Once https://issuetracker.google.com/127986458 is fixed this can be testImplementation
-    debugImplementation "androidx.fragment:fragment-testing:$fragmentVersion"
+    implementation "androidx.fragment:fragment-testing:$fragmentVersion"
     implementation "androidx.test:core:$androidXTestCoreVersion"
     implementation "androidx.fragment:fragment:$fragmentVersion"
 
@@ -155,6 +158,7 @@ dependencies {
     androidTestImplementation "androidx.test.espresso:espresso-contrib:$espressoVersion"
     androidTestImplementation "androidx.test.espresso:espresso-intents:$espressoVersion"
     androidTestImplementation "androidx.test.espresso.idling:idling-concurrent:$espressoVersion"
+    androidTestImplementation "org.robolectric:annotations:$robolectricVersion"
     implementation "androidx.test.espresso:espresso-idling-resource:$espressoVersion"
 
     // Resolve conflicts between main and test APK:
